@@ -1,16 +1,19 @@
 import { expect, type Locator, type Page } from "@playwright/test";
+import { Footer } from "./Footer";
+import { BasePage } from "./BasePage";
 
-export class SignInPage {
-  readonly page: Page;
+export class SignInPage extends BasePage {
   readonly signUpLink: Locator;
   readonly signUpButton: Locator;
   readonly alreadyHaveAnAccountLink: Locator;
   readonly emailTextbox: Locator;
   readonly passwordTextBox: Locator;
   readonly signInButton: Locator;
+  readonly footer: Footer;
 
   constructor(page: Page) {
-    this.page = page;
+    super(page); 
+    this.footer = new Footer(page);
     this.signUpLink = page.locator(
       'role=link[name="Don\'t have an account? Sign up"]'
     );
@@ -18,7 +21,8 @@ export class SignInPage {
 
     // this.signUpButton = page.locator("h1", { hasText: "Installation" });
     this.alreadyHaveAnAccountLink = page.locator(
-      'role=link[name="Already have an account?"]');
+      'role=link[name="Already have an account?"]'
+    );
     this.emailTextbox = page.locator('input[type="email"]');
     this.passwordTextBox = page.locator('input[type="password"]');
     this.signInButton = page.locator('role = button[name = "Sign in"]');
@@ -27,17 +31,18 @@ export class SignInPage {
   async goto() {
     await this.page.goto("https://genzbank.vercel.app/");
     await expect(this.page).toHaveTitle(/Genz Bank/);
-    await expect(this.page.url()).toContain("/dashboard/signin/password_signin");
+    await expect(this.page.url()).toContain(
+      "/dashboard/signin/password_signin"
+    );
   }
 
   async registration() {
-   await this.signUpLink.click();
-   await this.signUpButton.waitFor({ state: "visible" });
+    await this.signUpLink.click();
+    await this.signUpButton.waitFor({ state: "visible" });
 
-   await expect(this.page.url()).toContain("/dashboard/signin/signup");
-   await expect(this.alreadyHaveAnAccountLink).toBeVisible();
-   await this.enterUsernameAndPassword();
-   
+    await expect(this.page.url()).toContain("/dashboard/signin/signup");
+    await expect(this.alreadyHaveAnAccountLink).toBeVisible();
+    await this.enterUsernameAndPassword();
   }
 
   async enterUsernameAndPassword() {
@@ -50,7 +55,5 @@ export class SignInPage {
     await expect(this.page.url()).toContain(
       "/dashboard/signin/password_signin"
     );
-
   }
-
 }
