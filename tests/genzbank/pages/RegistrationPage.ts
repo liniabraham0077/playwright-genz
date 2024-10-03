@@ -2,18 +2,16 @@ import { expect, type Locator, type Page } from "@playwright/test";
 import { Footer } from "./Footer";
 import { BasePage } from "./BasePage";
 
-export class SignInPage extends BasePage {
+export class RegistrationPage extends BasePage {
   readonly signUpLink: Locator;
   readonly signUpButton: Locator;
   readonly alreadyHaveAnAccountLink: Locator;
   readonly emailTextbox: Locator;
   readonly passwordTextBox: Locator;
   readonly signInButton: Locator;
-  readonly footer: Footer;
 
   constructor(page: Page) {
     super(page); 
-    this.footer = new Footer(page);
     this.signUpLink = page.locator(
       'role=link[name="Don\'t have an account? Sign up"]'
     );
@@ -28,13 +26,7 @@ export class SignInPage extends BasePage {
     this.signInButton = page.locator('role = button[name = "Sign in"]');
   }
 
-  async goto() {
-    await this.page.goto("https://genzbank.vercel.app/");
-    await expect(this.page).toHaveTitle(/Genz Bank/);
-    await expect(this.page.url()).toContain(
-      "/dashboard/signin/password_signin"
-    );
-  }
+  
 
   async registration() {
     await this.signUpLink.click();

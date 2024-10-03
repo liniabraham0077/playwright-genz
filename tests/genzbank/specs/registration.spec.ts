@@ -1,10 +1,9 @@
 import { test, expect } from "@playwright/test";
-import { SignInPage } from "../pages/RegistrationPage";
+import { RegistrationPage } from "../pages/RegistrationPage";
 
 test("User registration", async ({ page }) => {
-
-  const signinPage = new SignInPage(page);
-  await signinPage.goto();
-  await signinPage.registration();
-  await signinPage.verifyFooterLinks();
+  const registrationPage = new RegistrationPage(page);
+  await registrationPage.goto();
+  await registrationPage.registration();
+  await registrationPage.verifyFooterLinks();
 });

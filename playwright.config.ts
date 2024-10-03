@@ -40,7 +40,7 @@ export default defineConfig({
     {
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
-      testMatch: "tests/genzbank/specs/registration.spec.ts",
+      testMatch: "tests/genzbank/specs/whitelist.spec.ts",
     },
 
     {
