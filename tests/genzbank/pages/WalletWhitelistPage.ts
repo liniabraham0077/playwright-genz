@@ -4,44 +4,187 @@ import { BasePage } from "./BasePage";
 export class WalletWhitelistPage extends BasePage {
   readonly walletWhitelistHeader: Locator;
   readonly addWhitelistButton: Locator;
-  readonly profileSettingsText: Locator;
-  readonly updateNameButton: Locator;
-  readonly nameText: Locator;
+  readonly addWhitelistDialog: Locator;
+  readonly blockchainAddressHeading: Locator;
+  readonly selectDropdown: Locator;
+  readonly nickNameTextbox: Locator;
+  readonly walletAddressTextArea: Locator;
+  readonly transferLimitTextbox: Locator;
+  readonly submitButton: Locator;
+  readonly table: Locator;
+  readonly rowsLocator: Locator;
+  readonly nextPageButton: Locator;
+  readonly deleteAlertDialog: Locator;
+  readonly continueButton: Locator;
+  readonly whitelistDeletedMessage: Locator;
 
   constructor(page: Page) {
     super(page);
     this.walletWhitelistHeader = page.locator("p a", {
-      hasText: "Wallet Whitelist"
+      hasText: "Wallet Whitelist",
     });
     this.addWhitelistButton = page.locator('button:has-text("Add Whitelist")');
+    this.addWhitelistDialog = page.locator('div[role = "dialog"]');
+    this.blockchainAddressHeading = page.locator(
+      'div h2:has-text("Whitelist Blockchain Address")'
+    );
+    this.selectDropdown = page.locator("select");
+    this.nickNameTextbox = page.locator('input[name="nick_name"]');
+    this.walletAddressTextArea = page.locator('textarea[name="address"]');
+    this.transferLimitTextbox = page.locator('input[name="transfer_limit"]');
+    this.submitButton = page.locator('button:has-text("Submit")');
+    this.table = page.locator("table");
+    this.rowsLocator = page.locator("tbody tr");
+    this.nextPageButton = page.locator('button > svg > path[fill = "none"]');
+    this.deleteAlertDialog = page.locator('div[role="alertdialog"]');
+    this.continueButton = page.locator('button:has-text("Continue")');
+    this.whitelistDeletedMessage = page.locator('ol>li div:has-text("Whitelist deleted successfully!")');
+
+
   }
 
   async validateOnWalletWhitelistPage() {
     await this.walletWhitelistHeader.waitFor({ state: "visible" });
-    await expect(this.page.url()).toContain("/dashboard/whitelist");
+    await expect(await this.page.url()).toContain("/dashboard/whitelist");
   }
 
   async addWhitelist() {
     await this.validateOnWalletWhitelistPage();
+    const whitelistedCountBeforeAdding = await this.getWhitelistCount();
+    console.log(`Row count1: ${whitelistedCountBeforeAdding}`);
     await this.addWhitelistButton.first().click();
-    await this.page.locator('div[role = "dialog"]').waitFor({ state: "visible" });
-    await expect(
-      this.page.locator('div h2:has-text("Whitelist Blockchain Address")')
-    ).toBeVisible();
-    await this.page.locator("select").selectOption("SOL");
-    await this.page.locator('input[name="nick_name"]').fill('test')
-    await this.page
-      .locator('textarea[name="address"]')
-      .fill("Ex4z4APyJoQGS4N5xiWiV1isj8mTo5UXzoeWJZzWPGQk");
-    await this.page.locator('input[name="transfer_limit"]').fill("5000");
-    await this.page.locator('button:has-text("Submit")').click();
-        await this.page.waitForTimeout(10000);
+    await this.addWhitelistDialog.waitFor({ state: "visible" });
+    await expect(this.blockchainAddressHeading).toBeVisible();
+    await this.selectDropdown.selectOption("SOL");
+    await this.nickNameTextbox.fill("test");
+    await this.walletAddressTextArea.fill(
+      "Ex4z4APyJoQGS4N5xiWiV1isj8mTo5UXzoeWJZzWPGQk"
+    );
+    await this.transferLimitTextbox.fill("5000");
+    await this.submitButton.click();
+
+    await this.page.waitForResponse(
+      (response) =>
+        response.url().includes("/dashboard/whitelist") &&
+        response.status() === 200
+    );
+    await this.table.waitFor({ state: "visible" });
+
+    const whitelistedCountAfterAdding = await this.getWhitelistCount();
+    console.log(`Row count2: ${whitelistedCountAfterAdding}`);
+
+    await expect(whitelistedCountAfterAdding).toBe(
+      whitelistedCountBeforeAdding + 1
+    );
+  }
+
+  async getWhitelistCount() {
+    let totalRowCount = 0; // Variable to keep track of the total row count
+
+    // Define the locators for rows and the next page button
+    const rowsLocator = this.rowsLocator; // Adjust the locator to match your table rows
+    const nextPageButton = this.nextPageButton;
+
+    // Function to count rows on the current page
+    const countRowsOnCurrentPage = async () => {
+      await this.table.waitFor({ state: "visible" });
+
+      const rowCount = await rowsLocator.count(); // Count the rows on the current page
+      totalRowCount += rowCount; // Add the count to the total
+      console.log(
+        `Rows on this page: ${rowCount}, Total so far: ${totalRowCount}`
+      );
+    };
+
+    // Start by counting the rows on the first page
+    await countRowsOnCurrentPage();
+
+    // Loop through pages while the "Next page" button is enabled
+    while (await nextPageButton.nth(1).isEnabled()) {
+      await nextPageButton.nth(1).click(); // Click the next page button
+
+    //   await this.rowsLocator.waitFor({ state: "visible" });
+
+      // Count rows on the new page
+      await countRowsOnCurrentPage();
+    }
+
+    // Output the total row count after all pages have been processed
+    console.log(`Total rows across all pages: ${totalRowCount}`);
+    return totalRowCount;
+  }
+
+  async deleteWhitelist() {
+  const inputNetwork = "SOL";
+  const inputNickname = "test";
+  const inputTransferLimit = "5000";
+  const inputWalletAddress = "Ex4z4APyJoQGS4N5xiWiV1isj8mTo5UXzoeWJZzWPGQk"; // Use the exact or partial wallet address for matching
+
+  // Define locators for "Next Page" button and row locators
+  const nextPageButton = await this.nextPageButton; // Adjust the locator for the next page button if needed
+//   const whitelistedCountBeforeDeleting = await this.getWhitelistCount();
+//   console.log(`Row count1: ${whitelistedCountBeforeDeleting}`);
+  let currentPage = 1; // Track the current page for debugging
 
 
 
+  do {
+    console.log(`Processing page ${currentPage}`);
+    await this.page.waitForTimeout(10000);
 
+      const rows = await this.page.locator("tbody tr");
+      const rowCount = await rows.count();
+      console.log(`rowCount in page ${currentPage} is ${rowCount}`);
 
+    for (let i = 0; i < rowCount; i++) {
+      const row = rows.nth(i);
+      let network = await row.locator("td:nth-child(1)").textContent();
+      console.log(`network is ${network}`);
+      let nickname = await row.locator("td:nth-child(2)").textContent();
+            console.log(`network is ${nickname}`);
 
+      let transferLimit = await row.locator("td:nth-child(3)").textContent();
+            console.log(`network is ${transferLimit}`);
 
+      let walletAddress = await row.locator("td:nth-child(4)").textContent();
+            console.log(`network is ${walletAddress}`);
+
+        if(network=== inputNetwork && nickname === inputNickname && transferLimit === inputTransferLimit && walletAddress === inputWalletAddress){
+          console.log("input values match table value, hence deleting...");
+          //   Click the delete button associated with this row
+          await row.locator('button:has-text("Delete")').first().click();
+          // Wait for confirmation dialog to appear
+          await this.deleteAlertDialog.waitFor({ state: "visible" });
+
+          // Confirm deletion by clicking the continue button
+          await this.continueButton.click();
+
+          // Wait for confirmation dialog to disappear
+          await this.deleteAlertDialog.waitFor({ state: "hidden" });
+         await this.whitelistDeletedMessage.first().waitFor({state: "visible"});
+
+          await expect(this.whitelistDeletedMessage).toBeVisible();
+        }
+
+      
+    
+
+    }
+
+    // Check if the "Next Page" button is enabled
+    if (await nextPageButton.nth(1).isEnabled()) {
+      // Click to go to the next page
+      await nextPageButton.nth(1).click();
+
+      // Wait for the new page's content to load
+      await this.page.waitForSelector("tr");
+
+      currentPage++;
+    } else {
+      break; // If the "Next Page" button is disabled, stop the loop
+    }
+  } while (true);
+
+  console.log("Deletion process completed."); 
   }
 }
