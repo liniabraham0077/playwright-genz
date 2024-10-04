@@ -11,7 +11,7 @@ export class RegistrationPage extends BasePage {
   readonly signInButton: Locator;
 
   constructor(page: Page) {
-    super(page); 
+    super(page);
     this.signUpLink = page.locator(
       'role=link[name="Don\'t have an account? Sign up"]'
     );
@@ -26,26 +26,42 @@ export class RegistrationPage extends BasePage {
     this.signInButton = page.locator('role = button[name = "Sign in"]');
   }
 
-  
-
-  async registration() {
+  async validRegistration(email: string, password: string) {
     await this.signUpLink.click();
     await this.signUpButton.waitFor({ state: "visible" });
 
     await expect(this.page.url()).toContain("/dashboard/signin/signup");
     await expect(this.alreadyHaveAnAccountLink).toBeVisible();
-    await this.enterUsernameAndPassword();
+    await this.enterUsernameAndPassword(email, password);
+    await this.validateSuccessfulLogin();
   }
 
-  async enterUsernameAndPassword() {
-    const randomNumber = Math.floor(10000 + Math.random() * 90000);
-    await this.emailTextbox.fill(`test${randomNumber}@gmail.com`);
-    await this.passwordTextBox.fill("Password123#");
+  async inValidRegistration(email: string, password: string, URLError: string) {
+    await this.signUpLink.click();
+    await this.signUpButton.waitFor({ state: "visible" });
+
+    await expect(this.page.url()).toContain("/dashboard/signin/signup");
+    await expect(this.alreadyHaveAnAccountLink).toBeVisible();
+    await this.enterUsernameAndPassword(email, password);
+    await this.validateLoginError(URLError);
+  }
+
+  async enterUsernameAndPassword(email: string, password: string) {
+    await this.emailTextbox.fill(email);
+    await this.passwordTextBox.fill(password);
 
     await this.signUpButton.click();
+  }
+
+  async validateSuccessfulLogin() {
     await this.signInButton.waitFor({ state: "visible" });
     await expect(this.page.url()).toContain(
       "/dashboard/signin/password_signin"
     );
+  }
+
+  async validateLoginError(URLError: string) {
+    await this.page.waitForLoadState("networkidle");
+    await expect(this.page.url()).toContain(URLError);
   }
 }

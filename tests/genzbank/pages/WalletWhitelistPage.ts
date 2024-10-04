@@ -48,15 +48,12 @@ export class WalletWhitelistPage extends BasePage {
     await expect(await this.page.url()).toContain("/dashboard/whitelist");
   }
 
-  async addToWhitelist(
+  async inputWhitelistValues(
     network: string,
     nickname: string,
     walletAddress: string,
     transferLimit: string
   ) {
-    await this.validateOnWalletWhitelistPage();
-    const whitelistedCountBeforeAdding = await this.listWhitelist();
-    console.log(`Row count1: ${whitelistedCountBeforeAdding}`);
     await this.addWhitelistButton.first().click();
     await this.addWhitelistDialog.waitFor({ state: "visible" });
     await expect(this.blockchainAddressHeading).toBeVisible();
@@ -71,6 +68,37 @@ export class WalletWhitelistPage extends BasePage {
         response.url().includes("/dashboard/whitelist") &&
         response.status() === 200
     );
+  }
+
+  async addToWhitelist(
+    network: string,
+    nickname: string,
+    walletAddress: string,
+    transferLimit: string
+  ) {
+    await this.validateOnWalletWhitelistPage();
+    const whitelistedCountBeforeAdding = await this.listWhitelist();
+    console.log(`Row count1: ${whitelistedCountBeforeAdding}`);
+    await this.inputWhitelistValues(
+      network,
+      nickname,
+      walletAddress,
+      transferLimit
+    );
+    // await this.addWhitelistButton.first().click();
+    // await this.addWhitelistDialog.waitFor({ state: "visible" });
+    // await expect(this.blockchainAddressHeading).toBeVisible();
+    // await this.selectDropdown.selectOption(network);
+    // await this.nickNameTextbox.fill(nickname);
+    // await this.walletAddressTextArea.fill(walletAddress);
+    // await this.transferLimitTextbox.fill(transferLimit);
+    // await this.submitButton.click();
+
+    // await this.page.waitForResponse(
+    //   (response) =>
+    //     response.url().includes("/dashboard/whitelist") &&
+    //     response.status() === 200
+    // );
     await this.table.waitFor({ state: "visible" });
 
     const whitelistedCountAfterAdding = await this.listWhitelist();
@@ -120,7 +148,7 @@ export class WalletWhitelistPage extends BasePage {
   async deleteFromWhitelist(
     inputNetwork: string,
     inputNickname: string,
-     inputWalletAddress: string,
+    inputWalletAddress: string,
     inputTransferLimit: string
   ) {
     // Define locators for "Next Page" button and row locators
@@ -137,7 +165,7 @@ export class WalletWhitelistPage extends BasePage {
       const rowCount = await this.rowsLocator.count();
       console.log(`rowCount in page ${currentPage} is ${rowCount}`);
 
-      for (let i = 0; i < rowCount-1; i++) {
+      for (let i = 0; i < rowCount - 1; i++) {
         const row = this.rowsLocator.nth(i);
         let network = await row.locator("td:nth-child(1)").textContent();
         console.log(`network is ${network}`);
@@ -145,17 +173,15 @@ export class WalletWhitelistPage extends BasePage {
 
         let nickname = await row.locator("td:nth-child(2)").textContent();
         console.log(`nickname is ${nickname}`);
-                console.log(`inputNickname is ${inputNickname}`);
-
+        console.log(`inputNickname is ${inputNickname}`);
 
         let transferLimit = await row.locator("td:nth-child(3)").textContent();
         console.log(`transferLimit is ${transferLimit}`);
-                console.log(`inputTransferLimit is ${inputTransferLimit}`);
-
+        console.log(`inputTransferLimit is ${inputTransferLimit}`);
 
         let walletAddress = await row.locator("td:nth-child(4)").textContent();
         console.log(`walletAddress is ${walletAddress}`);
-                console.log(`inputWalletAddress is ${inputWalletAddress}`);
+        console.log(`inputWalletAddress is ${inputWalletAddress}`);
 
         if (
           network === inputNetwork &&
@@ -197,5 +223,21 @@ export class WalletWhitelistPage extends BasePage {
     } while (true);
 
     console.log("Deletion process completed.");
+  }
+
+  async validateWhitelisting(
+    testDescription: string,
+    network: string,
+    nickname: string,
+    walletAddress: string,
+    transferLimit: string
+  ) {
+
+     await this.inputWhitelistValues(
+       network,
+       nickname,
+       walletAddress,
+       transferLimit
+     );
   }
 }
