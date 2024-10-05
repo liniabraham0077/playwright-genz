@@ -27,6 +27,7 @@ export class WalletWhitelistPage extends BasePage {
   readonly walletAddressErrorText: Locator;
   readonly transferLimitLabel: Locator;
   readonly transferLimitErrorText: Locator;
+  readonly invalidWalletAddressError: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -70,6 +71,9 @@ export class WalletWhitelistPage extends BasePage {
     );
     this.transferLimitErrorText = page.locator(
       "//input[@name='transfer_limit']/following-sibling::p"
+    );
+    this.invalidWalletAddressError = page.locator(
+      'div:has-text("Unable to add whitelist, could be an invalid wallet address or limit")'
     );
   }
 
@@ -252,16 +256,53 @@ export class WalletWhitelistPage extends BasePage {
       walletAddress,
       transferLimit
     );
-    if(testDescription==='blank fields'){
-        await CommonUtils.verifyElementColor(this.blockchainNetworkLabel,'rgb(255, 0, 0)');
-        await CommonUtils.verifyElementColor(this.nickNameLabel,'rgb(255, 0, 0)');
-        await CommonUtils.verifyElementColor(this.walletAddressLabel,'rgb(255, 0, 0)');
-        await CommonUtils.verifyElementColor(this.transferLimitLabel,'rgb(255, 0, 0)');
-
-        await CommonUtils.verifyText(this.blockchainNetworkErrorText, 'Please choose network id');
-        await CommonUtils.verifyText(this.nicknameErrorText, 'Nickname is mandatory and must be at least 2 characters');
-        await CommonUtils.verifyText(this.walletAddressErrorText, "Required");
-        await CommonUtils.verifyText(this.transferLimitErrorText, "Expected number, received nan");
+    if (testDescription === "blank fields") {
+      await this.validateAllBlankFields();
     }
+    if (testDescription === "Nickname less than 2 chars") {
+      await this.validateNickname();
+    }
+    if (testDescription === "Invalid wallet address") {
+        await this.invalidWalletAddressError.first().waitFor({'state': 'visible'})
+        await expect(this.invalidWalletAddressError.first()).toBeVisible();
+    }
+  }
+
+  async validateAllBlankFields() {
+    await CommonUtils.verifyElementColor(
+      this.blockchainNetworkLabel,
+      "rgb(255, 0, 0)"
+    );
+    await CommonUtils.verifyElementColor(this.nickNameLabel, "rgb(255, 0, 0)");
+    await CommonUtils.verifyElementColor(
+      this.walletAddressLabel,
+      "rgb(255, 0, 0)"
+    );
+    await CommonUtils.verifyElementColor(
+      this.transferLimitLabel,
+      "rgb(255, 0, 0)"
+    );
+
+    await CommonUtils.verifyText(
+      this.blockchainNetworkErrorText,
+      "Please choose network id"
+    );
+    await CommonUtils.verifyText(
+      this.nicknameErrorText,
+      "Nickname is mandatory and must be at least 2 characters"
+    );
+    await CommonUtils.verifyText(this.walletAddressErrorText, "Required");
+    await CommonUtils.verifyText(
+      this.transferLimitErrorText,
+      "Expected number, received nan"
+    );
+  }
+
+  async validateNickname() {
+    await CommonUtils.verifyElementColor(this.nickNameLabel, "rgb(255, 0, 0)");
+    await CommonUtils.verifyText(
+      this.nicknameErrorText,
+      "Nickname is mandatory and must be at least 2 characters"
+    );
   }
 }

@@ -73,12 +73,26 @@ test.beforeEach(async ({ page }) => {
 
 
 [
+  //   {
+  //     testDescription: "blank fields",
+  //     network: "",
+  //     nickname: "",
+  //     transferLimit: "",
+  //     walletAddress: "",
+  //   },
+//   {
+//     testDescription: "Nickname less than 2 chars",
+//     network: "ETH",
+//     nickname: "x",
+//     transferLimit: "1000",
+//     walletAddress: "0x267be1C1D684F78cb4F6a176C4911b741e4Ffdc0",
+//   },
   {
-    testDescription: "blank fields",
-    network: "",
-    nickname: "",
-    transferLimit: "",
-    walletAddress: "",
+    testDescription: "Invalid wallet address",
+    network: "SOL",
+    nickname: "invalid wallet address",
+    transferLimit: "1000",
+    walletAddress: "0x267be1C1D684F78cb4F6a176C4911b741e4Ffdc0",
   },
   //   {network: "ETH",nickname: "test2",transferLimit: "6000",walletAddress: "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"},
   //   {network: "BTC",nickname: "test3",transferLimit: "7000", walletAddress: "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa"},
