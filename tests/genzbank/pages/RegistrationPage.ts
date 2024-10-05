@@ -36,14 +36,14 @@ export class RegistrationPage extends BasePage {
     await this.validateSuccessfulLogin();
   }
 
-  async inValidRegistration(email: string, password: string, URLError: string) {
+  async invalidRegistration(email: string, password: string, URLError: string) {
     await this.signUpLink.click();
     await this.signUpButton.waitFor({ state: "visible" });
 
     await expect(this.page.url()).toContain("/dashboard/signin/signup");
     await expect(this.alreadyHaveAnAccountLink).toBeVisible();
     await this.enterUsernameAndPassword(email, password);
-    await this.validateLoginError(URLError);
+    await this.validateSignUpError(URLError);
   }
 
   async enterUsernameAndPassword(email: string, password: string) {
@@ -60,7 +60,7 @@ export class RegistrationPage extends BasePage {
     );
   }
 
-  async validateLoginError(URLError: string) {
+  async validateSignUpError(URLError: string) {
     await this.page.waitForLoadState("networkidle");
     await expect(this.page.url()).toContain(URLError);
   }

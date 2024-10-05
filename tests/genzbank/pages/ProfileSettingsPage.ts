@@ -33,8 +33,8 @@ export class ProfileSettingsPage extends BasePage {
         response.url().includes(`/settings?fullName=${updateNameInput}`) &&
         response.status() === 200
     );
+    await this.page.locator(`p:has-text('${updateNameInput}')`).first().waitFor({'state': 'visible'})
     const updatedName = await this.nameText.textContent();
-      console.log(`sb text is ${updatedName}`);
-      await expect(updateNameInput).toBe(updatedName);
+    await expect(updateNameInput).toBe(updatedName);
   }
 }

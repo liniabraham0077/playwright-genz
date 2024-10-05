@@ -1,5 +1,7 @@
 import { expect, type Locator, type Page } from "@playwright/test";
 import { BasePage } from "./BasePage";
+import { CommonUtils } from '../utils/common-utils'; // Import the utility class
+
 
 export class WalletWhitelistPage extends BasePage {
   readonly walletWhitelistHeader: Locator;
@@ -17,6 +19,14 @@ export class WalletWhitelistPage extends BasePage {
   readonly deleteAlertDialog: Locator;
   readonly continueButton: Locator;
   readonly whitelistDeletedMessage: Locator;
+  readonly blockchainNetworkLabel: Locator;
+  readonly blockchainNetworkErrorText: Locator;
+  readonly nickNameLabel: Locator;
+  readonly nicknameErrorText: Locator;
+  readonly walletAddressLabel: Locator;
+  readonly walletAddressErrorText: Locator;
+  readonly transferLimitLabel: Locator;
+  readonly transferLimitErrorText: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -40,6 +50,26 @@ export class WalletWhitelistPage extends BasePage {
     this.continueButton = page.locator('button:has-text("Continue")');
     this.whitelistDeletedMessage = page.locator(
       'ol>li div:has-text("Whitelist deleted successfully!")'
+    );
+    this.blockchainNetworkLabel = page.locator(
+      'label:has-text("Blockchain Network")'
+    );
+    this.blockchainNetworkErrorText = page.locator(
+      "//select/following-sibling::p"
+    );
+    this.nickNameLabel = page.locator('label:has-text("Nickname")');
+    this.nicknameErrorText = page.locator(
+      "//input[@name='nick_name']/following-sibling::p"
+    );
+    this.walletAddressLabel = page.locator('label:has-text("Wallet Address")');
+    this.walletAddressErrorText = page.locator(
+      "//textarea[@name='address']/following-sibling::p"
+    );
+    this.transferLimitLabel = page.locator(
+      'label:has-text("Transfer Limit (in AED)")'
+    );
+    this.transferLimitErrorText = page.locator(
+      "//input[@name='transfer_limit']/following-sibling::p"
     );
   }
 
@@ -85,20 +115,6 @@ export class WalletWhitelistPage extends BasePage {
       walletAddress,
       transferLimit
     );
-    // await this.addWhitelistButton.first().click();
-    // await this.addWhitelistDialog.waitFor({ state: "visible" });
-    // await expect(this.blockchainAddressHeading).toBeVisible();
-    // await this.selectDropdown.selectOption(network);
-    // await this.nickNameTextbox.fill(nickname);
-    // await this.walletAddressTextArea.fill(walletAddress);
-    // await this.transferLimitTextbox.fill(transferLimit);
-    // await this.submitButton.click();
-
-    // await this.page.waitForResponse(
-    //   (response) =>
-    //     response.url().includes("/dashboard/whitelist") &&
-    //     response.status() === 200
-    // );
     await this.table.waitFor({ state: "visible" });
 
     const whitelistedCountAfterAdding = await this.listWhitelist();
@@ -153,8 +169,6 @@ export class WalletWhitelistPage extends BasePage {
   ) {
     // Define locators for "Next Page" button and row locators
     const nextPageButton = await this.nextPageButton; // Adjust the locator for the next page button if needed
-    //   const whitelistedCountBeforeDeleting = await this.getWhitelistCount();
-    //   console.log(`Row count1: ${whitelistedCountBeforeDeleting}`);
     let currentPage = 1; // Track the current page for debugging
 
     do {
@@ -232,12 +246,22 @@ export class WalletWhitelistPage extends BasePage {
     walletAddress: string,
     transferLimit: string
   ) {
+    await this.inputWhitelistValues(
+      network,
+      nickname,
+      walletAddress,
+      transferLimit
+    );
+    if(testDescription==='blank fields'){
+        await CommonUtils.verifyElementColor(this.blockchainNetworkLabel,'rgb(255, 0, 0)');
+        await CommonUtils.verifyElementColor(this.nickNameLabel,'rgb(255, 0, 0)');
+        await CommonUtils.verifyElementColor(this.walletAddressLabel,'rgb(255, 0, 0)');
+        await CommonUtils.verifyElementColor(this.transferLimitLabel,'rgb(255, 0, 0)');
 
-     await this.inputWhitelistValues(
-       network,
-       nickname,
-       walletAddress,
-       transferLimit
-     );
+        await CommonUtils.verifyText(this.blockchainNetworkErrorText, 'Please choose network id');
+        await CommonUtils.verifyText(this.nicknameErrorText, 'Nickname is mandatory and must be at least 2 characters');
+        await CommonUtils.verifyText(this.walletAddressErrorText, "Required");
+        await CommonUtils.verifyText(this.transferLimitErrorText, "Expected number, received nan");
+    }
   }
 }

@@ -19,20 +19,39 @@ export class LoginPage extends BasePage {
     this.portfolioLink = page.locator('a[href="/dashboard/main"]');
   }
 
-  async loginWithValidCredentials() {
-    await this.enterUsernameAndPassword();
+  async loginWithValidCredentials(email: string, password: string) {
+    await this.enterUsernameAndPassword(email, password);
+    await this.verifySuccessfulLogin();
   }
 
-  async enterUsernameAndPassword() {
-    await this.emailTextbox.fill("liniabraham007@gmail.com");
-    await this.passwordTextBox.fill("Test123#");
+  async enterUsernameAndPassword(email: string, password: string) {
+    await this.emailTextbox.waitFor({ state: "visible" });
+    await this.emailTextbox.fill(email);
+    await this.passwordTextBox.fill(password);
     await this.signInButton.click();
+  }
+
+  async verifySuccessfulLogin() {
     await this.portfolioLink.waitFor({ state: "visible" });
     await expect(this.page.url()).toContain("/dashboard/main");
   }
 
-  async validLogin(){
+  async validLogin() {
     await this.goto();
-    await this.loginWithValidCredentials();
+    await this.loginWithValidCredentials(
+      process.env.VALID_EMAIL!,
+      process.env.VALID_PASSWORD!
+    );
+  }
+
+  async invalidLogin(email: string, password: string, URLError: string) {
+    await this.goto();
+    await this.enterUsernameAndPassword(email, password);
+    await this.validateSignInError(URLError);
+  }
+
+  async validateSignInError(URLError: string) {
+    await this.page.waitForLoadState("networkidle");
+    await expect(this.page.url()).toContain(URLError);
   }
 }

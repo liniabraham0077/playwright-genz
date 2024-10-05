@@ -30,7 +30,7 @@ test("Successful user registration", async ({ page }) => {
   },
   {
     testDescription: "blank password",
-    email: "invalid email",
+    email: "test@gmail.com",
     password: "",
     URLError:
       "/dashboard/signin/signup?error=Sign%20up%20failed.&error_description=Signup%20requires%20a%20valid%20password",
@@ -38,7 +38,7 @@ test("Successful user registration", async ({ page }) => {
   {
     testDescription: "invalid email format",
     email: "invalidemailformat",
-    password: "blankemail",
+    password: "invalidEmail",
     URLError:
       "/dashboard/signin/signup?error=Sign%20up%20failed.&error_description=Unable%20to%20validate%20email%20address%3A%20invalid%20format",
   },
@@ -55,7 +55,7 @@ test("Successful user registration", async ({ page }) => {
   }) => {
     const registrationPage = new RegistrationPage(page);
     await registrationPage.goto();
-    await registrationPage.inValidRegistration(email, password, URLError);
+    await registrationPage.invalidRegistration(email, password, URLError);
   });
 });
 
