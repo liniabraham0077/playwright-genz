@@ -1,5 +1,6 @@
 import { expect, type Locator, type Page } from "@playwright/test";
 
+/* Footer component contains the locators and methids for footer links common across multiple pages in Genz bank application*/
 export class Footer {
   readonly page: Page;
   readonly termsAndConditionsLink: Locator;
@@ -17,6 +18,7 @@ export class Footer {
     this.refundPolicyLink = page.locator('role=link[name="Refund Policy"]');
   }
 
+  /* method to  verify footer links common across multiple pages*/
   async verifyFooterLinks() {
     await expect(this.termsAndConditionsLink).toBeVisible();
     await expect(this.privacyPolicyLink).toBeVisible();

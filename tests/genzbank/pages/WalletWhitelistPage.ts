@@ -2,7 +2,7 @@ import { expect, type Locator, type Page } from "@playwright/test";
 import { BasePage } from "./BasePage";
 import { CommonUtils } from '../utils/common-utils'; // Import the utility class
 
-
+/* Walet whitelist page contains the locators and methods for the user to list, add and whitelist wallet addresses */
 export class WalletWhitelistPage extends BasePage {
   readonly walletWhitelistHeader: Locator;
   readonly addWhitelistButton: Locator;
@@ -77,11 +77,13 @@ export class WalletWhitelistPage extends BasePage {
     );
   }
 
+  /* method to validate if the user is on wallet whitelist page*/
   async validateOnWalletWhitelistPage() {
     await this.walletWhitelistHeader.waitFor({ state: "visible" });
     await expect(await this.page.url()).toContain("/dashboard/whitelist");
   }
 
+  /* method to input the values for adding to wallet whitelist */
   async inputWhitelistValues(
     network: string,
     nickname: string,
@@ -104,6 +106,7 @@ export class WalletWhitelistPage extends BasePage {
     );
   }
 
+  /* method to add a wallet address to wallet whitelist */
   async addToWhitelist(
     network: string,
     nickname: string,
@@ -111,7 +114,7 @@ export class WalletWhitelistPage extends BasePage {
     transferLimit: string
   ) {
     await this.validateOnWalletWhitelistPage();
-    const whitelistedCountBeforeAdding = await this.listWhitelist();
+    const whitelistedCountBeforeAdding = await this.listWhitelistedAddresses();
     console.log(`Row count1: ${whitelistedCountBeforeAdding}`);
     await this.inputWhitelistValues(
       network,
@@ -121,7 +124,7 @@ export class WalletWhitelistPage extends BasePage {
     );
     await this.table.waitFor({ state: "visible" });
 
-    const whitelistedCountAfterAdding = await this.listWhitelist();
+    const whitelistedCountAfterAdding = await this.listWhitelistedAddresses();
     console.log(`Row count2: ${whitelistedCountAfterAdding}`);
 
     await expect(whitelistedCountAfterAdding).toBe(
@@ -129,7 +132,8 @@ export class WalletWhitelistPage extends BasePage {
     );
   }
 
-  async listWhitelist() {
+  /* method to list all available wallet addresses */
+  async listWhitelistedAddresses() {
     let totalRowCount = 0; // Variable to keep track of the total row count
 
     // Define the locators for rows and the next page button
@@ -165,6 +169,7 @@ export class WalletWhitelistPage extends BasePage {
     return totalRowCount;
   }
 
+  /* method to delete all occurrences of a wallet address*/
   async deleteFromWhitelist(
     inputNetwork: string,
     inputNickname: string,
@@ -177,14 +182,11 @@ export class WalletWhitelistPage extends BasePage {
 
     do {
       console.log(`Processing page ${currentPage}`);
-      await this.page.waitForTimeout(10000);
-
-      //   const rows = await this.page.locator("tbody tr");
       const rowCount = await this.rowsLocator.count();
       console.log(`rowCount in page ${currentPage} is ${rowCount}`);
 
-      for (let i = 0; i < rowCount - 1; i++) {
-        const row = this.rowsLocator.nth(i);
+      for (let rowNumber = 0; rowNumber < rowCount - 1; rowNumber++) {
+        const row = this.rowsLocator.nth(rowNumber);
         let network = await row.locator("td:nth-child(1)").textContent();
         console.log(`network is ${network}`);
         console.log(`inputNetwork is ${inputNetwork}`);
@@ -243,6 +245,7 @@ export class WalletWhitelistPage extends BasePage {
     console.log("Deletion process completed.");
   }
 
+  /* method to test invalid scenarios for adding a wallet address to whitelist and verify validation errors */
   async validateWhitelisting(
     testDescription: string,
     network: string,
@@ -256,18 +259,24 @@ export class WalletWhitelistPage extends BasePage {
       walletAddress,
       transferLimit
     );
+    /* validate error messages when all fields are blank */
     if (testDescription === "blank fields") {
       await this.validateAllBlankFields();
     }
+    /* validate error message when nickname value is less than 2 chars */
     if (testDescription === "Nickname less than 2 chars") {
       await this.validateNickname();
     }
+    /* validate error message for invalid wallet address */
     if (testDescription === "Invalid wallet address") {
-        await this.invalidWalletAddressError.first().waitFor({'state': 'visible'})
-        await expect(this.invalidWalletAddressError.first()).toBeVisible();
+      await this.invalidWalletAddressError
+        .first()
+        .waitFor({ state: "visible" });
+      await expect(this.invalidWalletAddressError.first()).toBeVisible();
     }
   }
 
+  /* method to validate error messages when all fields are blank */
   async validateAllBlankFields() {
     await CommonUtils.verifyElementColor(
       this.blockchainNetworkLabel,
@@ -298,6 +307,7 @@ export class WalletWhitelistPage extends BasePage {
     );
   }
 
+  /* method to validate error message when nickname value is less than 2 chars */
   async validateNickname() {
     await CommonUtils.verifyElementColor(this.nickNameLabel, "rgb(255, 0, 0)");
     await CommonUtils.verifyText(

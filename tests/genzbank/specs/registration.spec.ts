@@ -1,24 +1,22 @@
-import { test, expect } from "@playwright/test";
-import { RegistrationPage } from "../pages/RegistrationPage";
+import { expect } from "@playwright/test";
+import test from "../fixtures/BaseTest";
 
-// let registrationPage;
+/* Navigate to Genz bank url before each test*/
+test.beforeEach(async ({ registrationPage }) => {
+  await registrationPage.navigateToGenzBankURL();
+});
 
-// test.beforeEach(async ({ page }) => {
-//    registrationPage = new RegistrationPage(page);
-//      await registrationPage.goto();
-// });
-
-
-test("Successful user registration", async ({ page }) => {
-  const registrationPage = new RegistrationPage(page);
-  await registrationPage.goto();
-   const randomNumber = Math.floor(10000 + Math.random() * 90000);
+/* Test to sign up with  valid email and password*/
+test("Successful user registration", async ({ registrationPage }) => {
+  const randomNumber = Math.floor(10000 + Math.random() * 90000);
   await registrationPage.validRegistration(
     `test${randomNumber}@gmail.com`,
-    'Password123#'
+    "Password123#"
   );
   await registrationPage.verifyFooterLinks();
 });
+
+/* Parameterised test to sign up with different sets of invalid emailor password and verify the error in URL*/
 
 [
   {
@@ -42,20 +40,17 @@ test("Successful user registration", async ({ page }) => {
     URLError:
       "/dashboard/signin/signup?error=Sign%20up%20failed.&error_description=Unable%20to%20validate%20email%20address%3A%20invalid%20format",
   },
-  // {
-  //   testDescription: "already registered email",
-  //   email: "invalidemailformat",
-  //   password: "blankemail",
-  //   URLError:
-  //     "/dashboard/signin/signup?error=Sign%20up%20failed.&error_description=Unable%20to%20validate%20email%20address%3A%20invalid%20format",
-  // },
+  {
+    testDescription: "already registered email",
+    email: `${process.env.VALID_EMAIL}`,
+    password: `${process.env.VALID_PASSWORD}`,
+    URLError:
+      "/dashboard/signin/signup?error=Sign%20up%20failed.&error_description=There%20is%20already%20an%20account%20associated%20with%20this%20email%20address.%20Try%20resetting%20your%20password.",
+  },
 ].forEach(({ testDescription, email, password, URLError }) => {
   test(`Invalid registration scenario ${testDescription} with email ${email} password ${password} URLError ${URLError}`, async ({
-    page,
+    registrationPage,
   }) => {
-    const registrationPage = new RegistrationPage(page);
-    await registrationPage.goto();
     await registrationPage.invalidRegistration(email, password, URLError);
   });
 });
-

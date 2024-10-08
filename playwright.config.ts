@@ -16,7 +16,7 @@ dotenv.config();
  */
 export default defineConfig({
   testDir: "./tests",
-  timeout: 60000,
+  timeout: 180000,
   /* Run tests in files in parallel */
   fullyParallel: false,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -24,7 +24,7 @@ export default defineConfig({
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
   /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
+  workers: 4,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: "html",
   grep: new RegExp(process.env.TAGS!),

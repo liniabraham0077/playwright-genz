@@ -3,7 +3,16 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "chrome:headed": "npx playwright test --project=chromium --headed",
+    "chrome:headless": "npx playwright test --project=chromium",
+    "firefox:headed": "npx playwright test --project=firefox --headed",
+    "firefox:headless": "npx playwright test --project=firefox",
+    "safari:headed": "npx playwright test --project=webkit --headed",
+    "safari:headless": "npx playwright test --project=webkit",
+    "all:browsers:headed": "npx playwright test --headed",
+    "all:browsers:headless": "npx playwright test"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",

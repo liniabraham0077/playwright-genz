@@ -1,14 +1,13 @@
-import { test, expect } from "@playwright/test";
-import { RegistrationPage } from "../pages/RegistrationPage";
-import { HomePage } from "../pages/HomePage";
-import { LoginPage } from "../pages/LoginPage";
-import { ProfileSettingsPage } from "../pages/ProfileSettingsPage";
+import { expect } from "@playwright/test";
+import test from "../fixtures/BaseTest";
 
-test("User updates name in profile settings", async ({ page }) => {
-  const loginPage = new LoginPage(page);
-  const homePage = new HomePage(page);
-  const profileSettingsPage = new ProfileSettingsPage(page);
+/* Test to update name in profile settings and verify whether the updated name is reflected correctly*/
+test("User updates name in profile settings", async ({
+  loginPage,
+  homePage,
+  profileSettingsPage,
+}) => {
   await loginPage.validLogin();
   await homePage.navigateToProfileSettings();
-  await profileSettingsPage.updateName();
+  await profileSettingsPage.updateAndVerifyUpdatedName();
 });
