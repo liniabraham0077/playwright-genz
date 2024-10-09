@@ -39,6 +39,7 @@ TAGS= <add the tag for the spec file you want to run for example @executeTest , 
 8. Run tests on all browsers in headless mode
 `npm run all:browsers:headless`
 
+Test report can be found under playwright-report/index.html.Open with a browser to view the test results.
 
 Folder structure
 
