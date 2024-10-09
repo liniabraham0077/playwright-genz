@@ -89,7 +89,7 @@ test("Delete from whitelist", async ({ walletWhitelistPage }) => {
   test(`Delete from whitelist with network ${network}, nickname ${nickname}, transferLimit ${transferLimit} walletAddress ${walletAddress}`, async ({
     walletWhitelistPage,
   }) => {
-    await walletWhitelistPage.addToWhitelist(
+    await walletWhitelistPage.deleteFromWhitelist(
       network,
       nickname,
       walletAddress,

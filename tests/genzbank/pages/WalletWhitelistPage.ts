@@ -7,6 +7,7 @@ export class WalletWhitelistPage extends BasePage {
   readonly walletWhitelistHeader: Locator;
   readonly addWhitelistButton: Locator;
   readonly addWhitelistDialog: Locator;
+  readonly loadingSpinner: Locator;
   readonly blockchainAddressHeading: Locator;
   readonly selectDropdown: Locator;
   readonly nickNameTextbox: Locator;
@@ -36,6 +37,7 @@ export class WalletWhitelistPage extends BasePage {
     });
     this.addWhitelistButton = page.locator('button:has-text("Add Whitelist")');
     this.addWhitelistDialog = page.locator('div[role = "dialog"]');
+    this.loadingSpinner = page.locator("svg.animate-spin.primary");
     this.blockchainAddressHeading = page.locator(
       'div h2:has-text("Whitelist Blockchain Address")'
     );
@@ -122,6 +124,8 @@ export class WalletWhitelistPage extends BasePage {
       walletAddress,
       transferLimit
     );
+
+    await this.loadingSpinner.waitFor({ state: "hidden" });
     await this.table.waitFor({ state: "visible" });
 
     const whitelistedCountAfterAdding = await this.listWhitelistedAddresses();
